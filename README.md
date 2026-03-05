@@ -1,12 +1,11 @@
-# New-VHDDevDrive
+# scripting dev drive configuration
 
-Create a VHDX-backed Dev Drive formatted with ReFS from PowerShell.
+Add/Remove a VHDX-backed Dev Drive formatted with ReFS for Windows 11. For more info on Dev Drive - https://learn.microsoft.com/en-us/windows/dev-drive/
 
 ## Prerequisites
 
 - Windows 11 with Dev Drive support
-- Elevated PowerShell session
-- Hyper-V PowerShell module (for `New-VHD`, `Mount-VHD`)
+- Elevated Admin session
 
 ## Quick Start (Command Prompt)
 
