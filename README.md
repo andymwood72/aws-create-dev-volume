@@ -37,6 +37,7 @@ status-devdrive.cmd --help
 - The PowerShell version is still available in `New-VHDDevDrive.ps1`.
 - The CMD script only allows one Dev Drive at a time.
 - Use `--no-av` to disable antivirus filters (default is `--allow-av`).
+- Use `--fixed` to create a fixed-size VHDX (default is expandable).
 
 ## Remove an existing Dev Drive
 

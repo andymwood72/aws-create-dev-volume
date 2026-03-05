@@ -9,6 +9,7 @@ set "LABEL=DevDrive"
 set "FILTERS="
 set "FORCE=0"
 set "AV_MODE=allow"
+set "VHD_TYPE=expandable"
 
 if "%~1"=="" goto :help
 
@@ -51,6 +52,11 @@ if /I "%~1"=="--no-av" (
 )
 if /I "%~1"=="--allow-av" (
     set "AV_MODE=allow"
+    shift
+    goto :parse
+)
+if /I "%~1"=="--fixed" (
+    set "VHD_TYPE=fixed"
     shift
     goto :parse
 )
@@ -123,7 +129,7 @@ if not "%ERRORLEVEL%"=="0" (
 
 set "DP_SCRIPT=%TEMP%\devdrive_diskpart_%RANDOM%.txt"
 (
-    echo create vdisk file="%VHD_PATH%" maximum=%SIZE_MB% type=expandable
+    echo create vdisk file="%VHD_PATH%" maximum=%SIZE_MB% type=%VHD_TYPE%
     echo select vdisk file="%VHD_PATH%"
     echo attach vdisk
     echo convert gpt
@@ -224,5 +230,6 @@ echo   --filters  Optional. Comma-separated filter list for fsutil devdrv.
 echo   --force    Optional. Skip overwrite prompt.
 echo   --no-av    Optional. Disable antivirus filters for Dev Drive.
 echo   --allow-av Optional. Allow antivirus filters (default).
+echo   --fixed    Optional. Create a fixed-size VHDX (default is expandable).
 echo.
 exit /b 1
