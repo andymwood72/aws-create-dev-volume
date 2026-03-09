@@ -13,6 +13,12 @@ Add/Remove a VHDX-backed Dev Drive formatted with ReFS for Windows 11. For more 
 create-devdrive.cmd --path "C:\DevDrives\devdrive.vhdx" --size 50GB --letter B --label DevDrive
 ```
 
+Use defaults:
+
+```cmd
+create-devdrive.cmd --defaults
+```
+
 ## Examples
 
 ```cmd
@@ -36,6 +42,9 @@ status-devdrive.cmd --help
 - The CMD script only allows one Dev Drive at a time.
 - Use `--no-av` to disable antivirus filters (default is `--allow-av`).
 - Use `--fixed` to create a fixed-size VHDX (default is expandable).
+- Use `--defaults` to create with all default settings.
+- Default path is `%USERPROFILE%\dev-drive\devdrive.vhdx`.
+- Default drive letter is `B`.
 
 ## Remove an existing Dev Drive
 

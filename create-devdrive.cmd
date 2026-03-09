@@ -60,6 +60,18 @@ if /I "%~1"=="--fixed" (
     shift
     goto :parse
 )
+if /I "%~1"=="--defaults" (
+    set "VHD_PATH="
+    set "SIZE_INPUT=50GB"
+    set "DRIVE_LETTER=B"
+    set "LABEL=DevDrive"
+    set "FILTERS="
+    set "FORCE=0"
+    set "AV_MODE=allow"
+    set "VHD_TYPE=expandable"
+    shift
+    goto :parse
+)
 if /I "%~1"=="-h" goto :help
 if /I "%~1"=="--help" goto :help
 
@@ -67,12 +79,18 @@ echo Unknown argument: %~1
 goto :help
 
 :haveran
-if not defined VHD_PATH goto :help
-
 net session >nul 2>&1
 if not "%ERRORLEVEL%"=="0" (
     echo Run this script from an elevated Command Prompt.
     exit /b 1
+)
+
+set "DEFAULT_DIR=%USERPROFILE%\dev-drive"
+if not exist "%DEFAULT_DIR%" (
+    mkdir "%DEFAULT_DIR%" >nul 2>&1
+)
+if not defined VHD_PATH (
+    set "VHD_PATH=%DEFAULT_DIR%\devdrive.vhdx"
 )
 
 call :findExistingDevDrive EXISTING_DEVDRIVE
@@ -112,6 +130,10 @@ if exist "%VHD_PATH%" (
         )
         del /f /q "%VHD_PATH%" >nul 2>&1
     )
+)
+
+for %%P in ("%VHD_PATH%") do (
+    if not exist "%%~dpP" mkdir "%%~dpP" >nul 2>&1
 )
 
 call :parseSize "%SIZE_INPUT%" SIZE_MB
@@ -218,11 +240,11 @@ echo.
 echo %SCRIPT_NAME% - create and mount a VHDX Dev Drive (no PowerShell/Hyper-V).
 echo.
 echo Usage:
-echo   %SCRIPT_NAME% --path "C:\DevDrives\devdrive.vhdx" [--size 50GB] [--letter B] [--label DevDrive]
-echo   %SCRIPT_NAME% --path "C:\DevDrives\devdrive.vhdx" [--filters PrjFlt,MsSecFlt,DfmFlt] [--force]
+echo   %SCRIPT_NAME% --path "%USERPROFILE%\Dev-Drive\devdrive.vhdx" [--size 50GB] [--letter B] [--label DevDrive]
+echo   %SCRIPT_NAME% --path "%USERPROFILE%\Dev-Drive\devdrive.vhdx" [--filters PrjFlt,MsSecFlt,DfmFlt] [--force]
 echo.
 echo Options:
-echo   --path     Required. VHDX path to create.
+echo   --path     Optional. VHDX path to create (default is %%USERPROFILE%%\dev-drive\devdrive.vhdx).
 echo   --size     Optional. Size in GB or MB. Default is 50GB.
 echo   --letter   Optional. Drive letter to assign. Default is B.
 echo   --label    Optional. Volume label. Default is DevDrive.
@@ -231,5 +253,6 @@ echo   --force    Optional. Skip overwrite prompt.
 echo   --no-av    Optional. Disable antivirus filters for Dev Drive.
 echo   --allow-av Optional. Allow antivirus filters (default).
 echo   --fixed    Optional. Create a fixed-size VHDX (default is expandable).
+echo   --defaults Optional. Use default parameters.
 echo.
 exit /b 1
