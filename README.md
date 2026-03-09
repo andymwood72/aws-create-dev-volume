@@ -43,6 +43,7 @@ status-devdrive.cmd --help
 - Use `--no-av` to disable antivirus filters (default is `--allow-av`).
 - Use `--fixed` to create a fixed-size VHDX (default is expandable).
 - Use `--defaults` to create with all default settings.
+- When using `--defaults`, an existing `%USERPROFILE%\dev-drive\devdrive.vhdx` is mounted instead of overwritten.
 - Default path is `%USERPROFILE%\dev-drive\devdrive.vhdx`.
 - Default drive letter is `B`.
 

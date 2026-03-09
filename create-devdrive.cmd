@@ -10,6 +10,8 @@ set "FILTERS="
 set "FORCE=0"
 set "AV_MODE=allow"
 set "VHD_TYPE=expandable"
+set "DEFAULTS=0"
+set "DEFAULTS_LOCK=0"
 
 if "%~1"=="" goto :help
 
@@ -61,14 +63,18 @@ if /I "%~1"=="--fixed" (
     goto :parse
 )
 if /I "%~1"=="--defaults" (
-    set "VHD_PATH="
-    set "SIZE_INPUT=50GB"
-    set "DRIVE_LETTER=B"
-    set "LABEL=DevDrive"
-    set "FILTERS="
-    set "FORCE=0"
-    set "AV_MODE=allow"
-    set "VHD_TYPE=expandable"
+    if "%DEFAULTS_LOCK%"=="0" (
+        set "VHD_PATH="
+        set "SIZE_INPUT=50GB"
+        set "DRIVE_LETTER=B"
+        set "LABEL=DevDrive"
+        set "FILTERS="
+        set "FORCE=0"
+        set "AV_MODE=allow"
+        set "VHD_TYPE=expandable"
+        set "DEFAULTS_LOCK=1"
+    )
+    set "DEFAULTS=1"
     shift
     goto :parse
 )
@@ -97,6 +103,35 @@ call :findExistingDevDrive EXISTING_DEVDRIVE
 if defined EXISTING_DEVDRIVE (
     echo Dev Drive already exists at %EXISTING_DEVDRIVE%:. Remove it before creating a new one.
     exit /b 1
+)
+
+if "%DEFAULTS%"=="1" if exist "%VHD_PATH%" (
+    if /I "%AV_MODE%"=="disallow" (
+        fsutil devdrv enable /disallowAv >nul 2>&1
+    ) else (
+        fsutil devdrv enable /allowAv >nul 2>&1
+    )
+    if not "%ERRORLEVEL%"=="0" (
+        echo Failed to enable Dev Drive support.
+        exit /b 1
+    )
+
+    set "DP_SCRIPT=%TEMP%\devdrive_attach_%RANDOM%.txt"
+    (
+        echo select vdisk file="%VHD_PATH%"
+        echo attach vdisk
+        echo assign letter=%DRIVE_LETTER%
+    ) > "%DP_SCRIPT%"
+
+    diskpart /s "%DP_SCRIPT%"
+    set "DP_EXIT=%ERRORLEVEL%"
+    del /f /q "%DP_SCRIPT%" >nul 2>&1
+    if not "%DP_EXIT%"=="0" (
+        echo diskpart attach failed.
+        exit /b 1
+    )
+    echo Dev Drive mounted from existing VHDX at %VHD_PATH%.
+    exit /b 0
 )
 
 for /f "delims=:" %%D in ("%DRIVE_LETTER%") do set "DRIVE_LETTER=%%D"
