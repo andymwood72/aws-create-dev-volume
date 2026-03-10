@@ -105,35 +105,6 @@ if defined EXISTING_DEVDRIVE (
     exit /b 1
 )
 
-if "%DEFAULTS%"=="1" if exist "%VHD_PATH%" (
-    if /I "%AV_MODE%"=="disallow" (
-        fsutil devdrv enable /disallowAv >nul 2>&1
-    ) else (
-        fsutil devdrv enable /allowAv >nul 2>&1
-    )
-    if not "%ERRORLEVEL%"=="0" (
-        echo Failed to enable Dev Drive support.
-        exit /b 1
-    )
-
-    set "DP_SCRIPT=%TEMP%\devdrive_attach_%RANDOM%.txt"
-    (
-        echo select vdisk file="%VHD_PATH%"
-        echo attach vdisk
-        echo assign letter=%DRIVE_LETTER%
-    ) > "%DP_SCRIPT%"
-
-    diskpart /s "%DP_SCRIPT%"
-    set "DP_EXIT=%ERRORLEVEL%"
-    del /f /q "%DP_SCRIPT%" >nul 2>&1
-    if not "%DP_EXIT%"=="0" (
-        echo diskpart attach failed.
-        exit /b 1
-    )
-    echo Dev Drive mounted from existing VHDX at %VHD_PATH%.
-    exit /b 0
-)
-
 for /f "delims=:" %%D in ("%DRIVE_LETTER%") do set "DRIVE_LETTER=%%D"
 set "DRIVE_LETTER=%DRIVE_LETTER:~0,1%"
 if "%DRIVE_LETTER%"=="" (
@@ -152,6 +123,49 @@ if not defined VALID_LETTER (
 if exist "%DRIVE_LETTER%:\NUL" (
     echo Drive letter %DRIVE_LETTER%: is already in use.
     exit /b 1
+)
+
+set "DP_SCRIPT_ATTACH=%TEMP%\devdrive_attach_%RANDOM%.txt"
+if "%DEFAULTS%"=="1" if exist "%VHD_PATH%" (
+    if exist "%VHD_PATH%\NUL" (
+        echo VHDX path resolved to a directory: %VHD_PATH%
+        exit /b 1
+    )
+    for %%P in ("%VHD_PATH%") do (
+        if /I not "%%~xP"==".vhdx" if /I not "%%~xP"==".vhd" (
+            echo VHDX path does not look like a VHD/VHDX file: %VHD_PATH%
+            exit /b 1
+        )
+    )
+
+    if /I "%AV_MODE%"=="disallow" (
+        fsutil devdrv enable /disallowAv >nul 2>&1
+    ) else (
+        fsutil devdrv enable /allowAv >nul 2>&1
+    )
+    if not "%ERRORLEVEL%"=="0" (
+        echo Failed to enable Dev Drive support.
+        exit /b 1
+    )
+
+    (
+        echo select vdisk file="%VHD_PATH%"
+        echo attach vdisk
+    ) > "%DP_SCRIPT_ATTACH%"
+    if not exist "%DP_SCRIPT_ATTACH%" (
+        echo Diskpart script file was not created: %DP_SCRIPT_ATTACH%
+        exit /b 1
+    )
+
+    diskpart /s "%DP_SCRIPT_ATTACH%"
+    if errorlevel 1 (
+        del /f /q "%DP_SCRIPT_ATTACH%" >nul 2>&1
+        echo diskpart attach failed.
+        exit /b 1
+    )
+    del /f /q "%DP_SCRIPT_ATTACH%" >nul 2>&1
+    echo Dev Drive mounted from existing VHDX at %VHD_PATH%.
+    exit /b 0
 )
 
 if exist "%VHD_PATH%" (
@@ -237,7 +251,11 @@ for %%L in (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z) do (
 )
 :found
 del /f /q "%QUERY_TMP%" >nul 2>&1
-set "%~1=%FOUND%"
+if defined FOUND (
+    set "%~1=%FOUND%"
+) else (
+    set "%~1="
+)
 exit /b 0
 
 :parseSize
