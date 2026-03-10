@@ -56,6 +56,8 @@ remove-devdrive.cmd --path "C:\DevDrives\devdrive.vhdx"
 
 If you omit `--path`, the script will try to auto-detect the Dev Drive by drive letter.
 
+Running `remove-devdrive.cmd` with no parameters shows help.
+
 Use defaults (auto-detect and detach):
 
 ```cmd

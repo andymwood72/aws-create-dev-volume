@@ -258,6 +258,8 @@ echo.
 echo Usage:
 echo   %SCRIPT_NAME% [--path "C:\DevDrives\devdrive.vhdx"] [--delete] [--force]
 echo.
+echo Running without parameters shows this help.
+echo.
 echo Options:
 echo   --path    Optional. VHDX path to detach. If omitted, auto-detects dev drive.
 echo   --delete  Optional. Prompt to delete the VHDX after detaching.
