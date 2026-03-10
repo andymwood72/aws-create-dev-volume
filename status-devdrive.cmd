@@ -139,6 +139,22 @@ exit /b 0
 :findExistingDevDrive
 set "FOUND="
 set "QUERY_TMP=%TEMP%\devdrive_query_%RANDOM%.txt"
+fsutil devdrv query > "%QUERY_TMP%" 2>&1
+if "%ERRORLEVEL%"=="0" (
+    for /f "tokens=* delims= " %%L in ('findstr /I /C:"Dev Drive" /C:"Developer volume" "%QUERY_TMP%"') do (
+        for %%T in (%%L) do (
+            echo %%T | findstr /R /I "^[A-Z]:$" >nul
+            if not errorlevel 1 set "FOUND=%%T"
+        )
+    )
+)
+if defined FOUND (
+    set "FOUND=%FOUND::=%"
+    del /f /q "%QUERY_TMP%" >nul 2>&1
+    goto :found
+)
+del /f /q "%QUERY_TMP%" >nul 2>&1
+set "QUERY_TMP=%TEMP%\devdrive_query_%RANDOM%.txt"
 for %%L in (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z) do (
     if exist "%%L:\" (
         fsutil devdrv query %%L: > "%QUERY_TMP%" 2>&1
@@ -174,9 +190,13 @@ diskpart /s "%DP_SCRIPT%" > "%VDISK_TMP%" 2>&1
 set "DP_EXIT=%ERRORLEVEL%"
 del /f /q "%DP_SCRIPT%" >nul 2>&1
 if "%DP_EXIT%"=="0" (
-    for /f "tokens=1,2,3,4,5,6,7,*" %%A in ('findstr /R /C:"^ *VDisk [0-9]" "%VDISK_TMP%"') do (
+    for /f "tokens=1,2,3,4,5,6,7,8,*" %%A in ('findstr /R /C:"^ *VDisk [0-9]" "%VDISK_TMP%"') do (
         if /I not "%%F"=="Unknown" (
-            if not "%%G"=="" set "FOUND_PATH=%%G %%H"
+            if /I "%%G"=="open" if /I "%%H"=="Expandable" (
+                if not "%%I"=="" set "FOUND_PATH=%%I"
+            ) else (
+                if not "%%G"=="" set "FOUND_PATH=%%G %%H"
+            )
         )
     )
 )
