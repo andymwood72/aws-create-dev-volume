@@ -1,6 +1,6 @@
 # scripting dev drive configuration
 
-Add/Remove a VHDX-backed Dev Drive formatted with ReFS for Windows 11. For more info on Dev Drive - https://learn.microsoft.com/en-us/windows/dev-drive/. These scripts were developed with the intention of deployment in Amazon WorkSpaces; but would work on w365 or physical devices that have the capability of using Dev Drives 
+Add/Remove a VHDX-backed Dev Drive formatted with ReFS for Windows 11. For more info on Dev Drive - https://learn.microsoft.com/en-us/windows/dev-drive/. These scripts were developed with the intention of deployment in BYOL Win11 Amazon WorkSpaces; but would work on w365 or physical devices that have the capability of using Dev Drives 
 
 ## Prerequisites
 
