@@ -19,6 +19,20 @@ Use defaults:
 create-devdrive.cmd --defaults
 ```
 
+## Quick Start (PowerShell Interactive)
+
+Use the PowerShell wrapper to validate inputs, then run `create-devdrive.cmd` elevated:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\create-devdrive.ps1
+```
+
+The script:
+- exits if a Dev Drive is already mounted
+- prompts for size in GB (integer, minimum 50, maximum is `D:` free space minus 50 GB)
+- prompts for a drive letter and ensures it is not already in use
+- launches `create-devdrive.cmd --size <n>GB --letter <X>` as Administrator
+
 ## Examples
 
 ```cmd
