@@ -1,5 +1,7 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+$MinVhdSizeGb = 50
+$ReserveFreeGb = 10
 
 function Test-DevDriveMounted {
     foreach ($code in 65..90) {
@@ -28,11 +30,13 @@ function Test-DevDriveMounted {
 function Read-ValidSizeGb {
     param(
         [Parameter(Mandatory = $true)]
+        [int]$MinSizeGb,
+        [Parameter(Mandatory = $true)]
         [int]$MaxSizeGb
     )
 
     while ($true) {
-        $inputText = Read-Host "Drive Size in GB (integer 50-$MaxSizeGb)"
+        $inputText = Read-Host "Drive Size in GB (integer $MinSizeGb-$MaxSizeGb)"
         $parsed = 0
         $isInt = [int]::TryParse($inputText, [ref]$parsed)
 
@@ -41,8 +45,8 @@ function Read-ValidSizeGb {
             continue
         }
 
-        if ($parsed -lt 50) {
-            Write-Host "Invalid size. Minimum is 50 GB." -ForegroundColor Yellow
+        if ($parsed -lt $MinSizeGb) {
+            Write-Host "Invalid size. Minimum is $MinSizeGb GB." -ForegroundColor Yellow
             continue
         }
 
@@ -95,15 +99,16 @@ if (-not $dDrive) {
 }
 
 $freeGb = [int][Math]::Floor($dDrive.Free / 1GB)
-$maxAllowedGb = $freeGb - 50
+$maxAllowedGb = $freeGb - $ReserveFreeGb
 
-if ($maxAllowedGb -lt 50) {
-    throw "Not enough free space on D:. Free: $freeGb GB. Need at least 100 GB free to allow a minimum 50 GB Dev Drive while leaving 50 GB unused."
+if ($maxAllowedGb -lt $MinVhdSizeGb) {
+    $requiredMinFreeGb = $MinVhdSizeGb + $ReserveFreeGb
+    throw "Not enough free space on D:. Free: $freeGb GB. Need at least $requiredMinFreeGb GB free to allow a minimum $MinVhdSizeGb GB Dev Drive while leaving $ReserveFreeGb GB unused."
 }
 
-Write-Host "D: free space: $freeGb GB. Allowed size range: 50-$maxAllowedGb GB." -ForegroundColor Cyan
+Write-Host "D: free space: $freeGb GB. Allowed size range: $MinVhdSizeGb-$maxAllowedGb GB." -ForegroundColor Cyan
 
-$sizeGb = Read-ValidSizeGb -MaxSizeGb $maxAllowedGb
+$sizeGb = Read-ValidSizeGb -MinSizeGb $MinVhdSizeGb -MaxSizeGb $maxAllowedGb
 $driveLetter = Read-ValidDriveLetter
 
 Write-Host "Starting elevated create-devdrive with size $sizeGb GB and drive letter $driveLetter`: ..." -ForegroundColor Cyan
