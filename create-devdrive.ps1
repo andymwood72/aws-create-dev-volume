@@ -58,7 +58,10 @@ function Read-ValidSizeGb {
 function Read-ValidDriveLetter {
     while ($true) {
         $inputText = Read-Host "Drive letter (single letter, not in use)"
-        $letter = ($inputText ?? "").Trim().TrimEnd(":").ToUpperInvariant()
+        if ($null -eq $inputText) {
+            $inputText = ""
+        }
+        $letter = $inputText.Trim().TrimEnd(":").ToUpperInvariant()
 
         if ($letter -notmatch "^[A-Z]$") {
             Write-Host "Invalid drive letter. Enter one letter A-Z." -ForegroundColor Yellow
