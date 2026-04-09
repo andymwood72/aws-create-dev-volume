@@ -1,11 +1,15 @@
 # scripting dev drive configuration
 
-Add/Remove a VHDX-backed Dev Drive formatted with ReFS for Windows 11. For more info on Dev Drive - https://learn.microsoft.com/en-us/windows/dev-drive/
+Add/Remove a VHDX-backed Dev Drive formatted with ReFS for Windows 11. For more info on Dev Drive - https://learn.microsoft.com/en-us/windows/dev-drive/. These scripts were developed with the intention of deployment in BYOL Win11 Amazon WorkSpaces; but would work on w365 or physical devices that have the capability of using Dev Drives 
 
 ## Prerequisites
 
-- Windows 11 with Dev Drive support
-- Elevated Admin session
+- Windows 11 with Dev Drive support (https://learn.microsoft.com/en-us/windows/dev-drive/)
+- Windows 11, Build #10.0.22621.2338 or later (Check for Windows updates)
+- Recommend 16 GB memory (minimum of 8 GB)
+- Minimum 50 GB free disk space
+- Dev Drives are available on all Windows SKU versions.
+- Local administrator permissions.
 
 ## Quick Start (Command Prompt)
 
